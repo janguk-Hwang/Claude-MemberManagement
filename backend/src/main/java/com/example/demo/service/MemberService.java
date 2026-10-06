@@ -92,6 +92,18 @@ public class MemberService {
     }
 
     @Transactional
+    public void changePassword(Long id, PasswordChangeRequest req) {
+        Member m = get(id);
+        if (!passwordEncoder.matches(req.oldPassword(), m.getPassword())) {
+            throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
+        }
+        if (req.newPassword() == null || req.newPassword().isBlank()) {
+            throw new IllegalArgumentException("새 비밀번호를 입력해주세요.");
+        }
+        m.setPassword(passwordEncoder.encode(req.newPassword()));
+    }
+
+    @Transactional
     public void delete(Long id) {
         memberRepository.deleteById(id);
     }

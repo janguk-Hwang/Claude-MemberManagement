@@ -17,4 +17,6 @@ public final class Dtos {
 
     public record MemberResponse(Long id, String name, String address,
                                  LocalDate birthDate, String phone, String role) {}
+                                 
+    public record PasswordChangeRequest(String oldPassword, String newPassword) {}
 }

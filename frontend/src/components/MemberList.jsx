@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { format, parseISO } from 'date-fns';
 import { AuthContext } from '../context/AuthContext';
-import { fetchMembers, updateMember, deleteMember, exportMembers } from '../api/memberApi';
+import { fetchMembers, updateMember, deleteMember, exportMembers, changePassword } from '../api/memberApi';
 import MemberForm from './MemberForm';
 
 const SIZE = 10;
@@ -20,6 +20,8 @@ const MemberList = () => {
   const [form, setForm] = useState(EMPTY);
   const [saving, setSaving] = useState(false);
   const [downOnOverlay, setDownOnOverlay] = useState(false);
+  const [pwModalOpen, setPwModalOpen] = useState(false);
+  const [pwForm, setPwForm] = useState({ oldPassword: '', newPassword: '', newPasswordConfirm: '' });
 
   const load = useCallback(async () => {
     try {
@@ -49,6 +51,29 @@ const MemberList = () => {
   const openEdit = (m) => {
     setForm({ id: m.id, name: m.name || '', address: m.address || '', birthDate: m.birthDate || '', phone: m.phone || '' });
     setModalOpen(true);
+  };
+
+  const openPwEdit = () => {
+    setPwForm({ oldPassword: '', newPassword: '', newPasswordConfirm: '' });
+    setPwModalOpen(true);
+  };
+
+  const handlePwSave = async (e) => {
+    e.preventDefault();
+    if (pwForm.newPassword !== pwForm.newPasswordConfirm) {
+      alert('새 비밀번호가 일치하지 않습니다.');
+      return;
+    }
+    try {
+      setSaving(true);
+      await changePassword(user.id, { oldPassword: pwForm.oldPassword, newPassword: pwForm.newPassword });
+      alert('비밀번호가 성공적으로 변경되었습니다.');
+      setPwModalOpen(false);
+    } catch (err) {
+      alert(err.response?.data?.message || '비밀번호 변경에 실패했습니다.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleSave = async (e) => {
@@ -125,6 +150,9 @@ const MemberList = () => {
                 <td>{m.phone}</td>
                 <td><em className={`role role-${m.role}`}>{m.role}</em></td>
                 <td className="actions">
+                  {m.id === user.id && (
+                    <button className="btn btn-ghost btn-sm" onClick={openPwEdit}>비밀번호 변경</button>
+                  )}
                   <button className="btn btn-ghost btn-sm" onClick={() => openEdit(m)}>수정</button>
                   {isAdmin && m.id !== user.id && (
                     <button className="btn btn-danger btn-sm" onClick={() => handleDelete(m)}>삭제</button>
@@ -151,6 +179,30 @@ const MemberList = () => {
             <h2>회원 정보 수정</h2>
             <MemberForm form={form} setForm={setForm} onSubmit={handleSave}
                         onCancel={() => setModalOpen(false)} saving={saving} />
+          </div>
+        </div>
+      )}
+      {pwModalOpen && (
+        <div className="overlay"
+             onMouseDown={(e) => setDownOnOverlay(e.target === e.currentTarget)}
+             onMouseUp={(e) => { if (downOnOverlay && e.target === e.currentTarget) setPwModalOpen(false); setDownOnOverlay(false); }}>
+          <div className="modal glass-panel">
+            <h2>비밀번호 변경</h2>
+            <form onSubmit={handlePwSave}>
+              <label>현재 비밀번호
+                <input type="password" value={pwForm.oldPassword} onChange={e => setPwForm({...pwForm, oldPassword: e.target.value})} required />
+              </label>
+              <label>새 비밀번호
+                <input type="password" value={pwForm.newPassword} onChange={e => setPwForm({...pwForm, newPassword: e.target.value})} required />
+              </label>
+              <label>새 비밀번호 확인
+                <input type="password" value={pwForm.newPasswordConfirm} onChange={e => setPwForm({...pwForm, newPasswordConfirm: e.target.value})} required />
+              </label>
+              <div className="modal-actions">
+                <button type="button" className="btn btn-ghost" onClick={() => setPwModalOpen(false)}>취소</button>
+                <button type="submit" className="btn btn-primary" disabled={saving}>{saving ? '저장 중...' : '저장'}</button>
+              </div>
+            </form>
           </div>
         </div>
       )}

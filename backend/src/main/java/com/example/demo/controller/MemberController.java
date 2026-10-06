@@ -105,6 +105,21 @@ public class MemberController {
         }
     }
 
+    @PutMapping("/{id}/password")
+    public ResponseEntity<?> changePassword(@PathVariable Long id, @RequestBody PasswordChangeRequest req,
+                                            Authentication authentication) {
+        if (authentication == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if (!me(authentication).getId().equals(id)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "권한이 없습니다."));
+        }
+        try {
+            memberService.changePassword(id, req);
+            return ResponseEntity.ok(Map.of("message", "비밀번호가 성공적으로 변경되었습니다."));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id, Authentication authentication) {
         if (authentication == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

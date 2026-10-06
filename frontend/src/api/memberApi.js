@@ -11,6 +11,9 @@ export const fetchMembers = (name, page, size) =>
 export const updateMember = (id, payload) =>
   axios.put(`/api/members/${id}`, payload).then((r) => r.data);
 
+export const changePassword = (id, payload) =>
+  axios.put(`/api/members/${id}/password`, payload).then((r) => r.data);
+
 export const deleteMember = (id) => axios.delete(`/api/members/${id}`);
 
 export const exportMembers = () =>
