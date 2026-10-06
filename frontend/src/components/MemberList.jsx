@@ -90,16 +90,24 @@ const MemberList = () => {
       <div className="table-wrap">
         <table>
           <thead>
-            <tr><th>ID</th><th>아이디</th><th>주소</th><th>생년월일</th><th>전화번호</th><th>역할</th><th>관리</th></tr>
+            <tr>
+              {isAdmin && <th>ID</th>}
+              <th>아이디</th>
+              <th>주소</th>
+              <th>생년월일</th>
+              <th>전화번호</th>
+              <th>역할</th>
+              <th>관리</th>
+            </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan="7" className="empty">불러오는 중...</td></tr>
+              <tr><td colSpan={isAdmin ? 7 : 6} className="empty">불러오는 중...</td></tr>
             ) : members.length === 0 ? (
-              <tr><td colSpan="7" className="empty">회원이 없습니다.</td></tr>
+              <tr><td colSpan={isAdmin ? 7 : 6} className="empty">회원이 없습니다.</td></tr>
             ) : members.map((m) => (
               <tr key={m.id}>
-                <td>{m.id}</td>
+                {isAdmin && <td>{m.id}</td>}
                 <td>{m.name}</td>
                 <td>{m.address || '-'}</td>
                 <td>{m.birthDate ? format(parseISO(m.birthDate), 'yyyy.MM.dd') : '-'}</td>
