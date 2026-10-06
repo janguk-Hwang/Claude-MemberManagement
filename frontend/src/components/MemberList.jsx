@@ -93,7 +93,7 @@ const MemberList = () => {
             <tr>
               {isAdmin && <th>ID</th>}
               <th>아이디</th>
-              <th>주소</th>
+              <th className="col-address">주소</th>
               <th>생년월일</th>
               <th>전화번호</th>
               <th>역할</th>
@@ -109,7 +109,7 @@ const MemberList = () => {
               <tr key={m.id}>
                 {isAdmin && <td>{m.id}</td>}
                 <td>{m.name}</td>
-                <td>{m.address || '-'}</td>
+                <td className="col-address">{m.address || '-'}</td>
                 <td>{m.birthDate ? format(parseISO(m.birthDate), 'yyyy.MM.dd') : '-'}</td>
                 <td>{m.phone}</td>
                 <td><em className={`role role-${m.role}`}>{m.role}</em></td>
