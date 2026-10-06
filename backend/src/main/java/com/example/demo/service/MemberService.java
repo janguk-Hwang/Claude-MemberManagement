@@ -67,6 +67,10 @@ public class MemberService {
         return memberRepository.findByNameContainingIgnoreCase(name.trim(), pageable);
     }
 
+    public java.util.List<Member> getAllMembers() {
+        return memberRepository.findAll();
+    }
+
     public Member get(Long id) {
         return memberRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));

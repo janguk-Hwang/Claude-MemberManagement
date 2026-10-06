@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { format, parseISO } from 'date-fns';
 import { AuthContext } from '../context/AuthContext';
-import { fetchMembers, updateMember, deleteMember } from '../api/memberApi';
+import { fetchMembers, updateMember, deleteMember, exportMembers } from '../api/memberApi';
 import MemberForm from './MemberForm';
 
 const SIZE = 10;
@@ -77,13 +77,24 @@ const MemberList = () => {
     }
   };
 
+  const handleExport = async () => {
+    try {
+      await exportMembers();
+    } catch (err) {
+      alert('엑셀 다운로드에 실패했습니다.');
+    }
+  };
+
   return (
     <section className="glass-panel list-card">
       <div className="list-head">
         <h1>{isAdmin ? '회원 목록' : '내 정보'}</h1>
         {isAdmin && (
-          <input id="search-name" className="search" placeholder="이름으로 검색"
-                 value={searchName} onChange={(e) => { setSearchName(e.target.value); setPage(0); }} />
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <input id="search-name" className="search" placeholder="이름으로 검색"
+                   value={searchName} onChange={(e) => { setSearchName(e.target.value); setPage(0); }} />
+            <button className="btn btn-primary btn-sm" onClick={handleExport}>엑셀 다운로드</button>
+          </div>
         )}
       </div>
       {error && <div className="error-msg">{error}</div>}

@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.List;
 import java.util.Map;
@@ -44,6 +45,50 @@ public class MemberController {
         // 일반 사용자: 본인 정보만
         Member self = memberService.get(me(authentication).getId());
         return ResponseEntity.ok(new PageImpl<>(List.of(MemberService.toResponse(self)), pageable, 1));
+    }
+
+    @GetMapping("/export")
+    public void exportMembers(HttpServletResponse response, Authentication authentication) throws java.io.IOException {
+        if (authentication == null || !isAdmin(authentication)) {
+            response.sendError(HttpStatus.FORBIDDEN.value());
+            return;
+        }
+        
+        response.setContentType("text/csv; charset=UTF-8");
+        response.setHeader("Content-Disposition", "attachment; filename=\"members.csv\"");
+        
+        // Excel UTF-8 한글 깨짐 방지 (BOM 추가)
+        response.getOutputStream().write(0xEF);
+        response.getOutputStream().write(0xBB);
+        response.getOutputStream().write(0xBF);
+        
+        java.io.PrintWriter writer = new java.io.PrintWriter(new java.io.OutputStreamWriter(response.getOutputStream(), java.nio.charset.StandardCharsets.UTF_8));
+        writer.println("ID,아이디,주소,생년월일,전화번호,역할");
+        
+        List<Member> members = memberService.getAllMembers();
+        for (Member m : members) {
+            writer.printf("%d,%s,%s,%s,%s,%s%n",
+                    m.getId(),
+                    escapeCsv(m.getName()),
+                    escapeCsv(m.getAddress()),
+                    m.getBirthDate() != null ? m.getBirthDate().toString() : "",
+                    escapeCsv(m.getPhone()),
+                    m.getRole().name()
+            );
+        }
+        writer.flush();
+    }
+    
+    private String escapeCsv(String data) {
+        if (data == null) return "";
+        String escaped = data;
+        if (escaped.contains("\"")) {
+            escaped = escaped.replace("\"", "\"\"");
+        }
+        if (escaped.contains(",") || escaped.contains("\"") || escaped.contains("\n")) {
+            escaped = "\"" + escaped + "\"";
+        }
+        return escaped;
     }
 
     @PutMapping("/{id}")
