@@ -1,0 +1,30 @@
+server:
+  port: 8080
+
+spring:
+  # 기본: H2 인메모리(설치 없이 실행). MySQL 사용 시 --spring.profiles.active=mysql
+  datasource:
+    url: jdbc:mysql://gateway01.ap-northeast-1.prod.aws.tidbcloud.com:4000/test?sslMode=VERIFY_IDENTITY&ssl=true
+    username: 587kDPMCGv1PvD7.root
+    password: I7IIsb0nTQA9e1aS
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:local-dev-secret-key-change-me-please-0123456789abcdef}
+    expiration-ms: 86400000
+
+---
+spring:
+  config:
+    activate:
+      on-profile: mysql
+  datasource:
+    url: jdbc:mysql://localhost:3306/member_management_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver

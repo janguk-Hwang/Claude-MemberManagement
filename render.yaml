@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: member-management
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /login
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: DB_URL
+        sync: false        # Render 대시보드에서 직접 입력
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true   # 자동 생성된 랜덤 값
+      - key: JAVA_TOOL_OPTIONS
+        value: -Xmx384m

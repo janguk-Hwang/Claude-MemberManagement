@@ -1,0 +1,20 @@
+spring:
+  datasource:
+    # TiDB Cloud는 TLS 필수. DB_URL 예:
+    # jdbc:mysql://gateway01.ap-northeast-1.prod.aws.tidbcloud.com:4000/test?sslMode=VERIFY_IDENTITY&serverTimezone=UTC
+    url: ${DB_URL}
+    username: ${DB_USERNAME}   # TiDB Serverless는 "접두사.root" 형식
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 5       # 무료 플랜/서버리스 연결 수 절약
+      max-lifetime: 240000       # TiDB 유휴 연결 종료보다 짧게
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+server:
+  port: ${PORT:8080}            # Render가 PORT 환경변수를 주입
+app:
+  jwt:
+    secret: ${JWT_SECRET}
