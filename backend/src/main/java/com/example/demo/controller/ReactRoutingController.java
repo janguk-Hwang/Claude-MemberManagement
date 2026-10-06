@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 /** SPA 새로고침 대응: React 라우트를 index.html로 포워딩 */
 @Controller
 public class ReactRoutingController {
-    @GetMapping({"/", "/login", "/signup"})
+    @GetMapping({"/", "/login", "/signup", "/members"})
     public String forward() {
         return "forward:/index.html";
     }
